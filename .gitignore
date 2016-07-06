@@ -4,3 +4,5 @@
 /public/stylesheets/bootstrap.min.css
 /node_modules/
 /mongo-doc/
+/.idea/
+/ext_data/

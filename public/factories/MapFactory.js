@@ -27,12 +27,23 @@ function MapFactory($http){
         zoom: 6
       });
     }
-    
     //Place all of the trackMarkers on the map
+    var currentInfoWindow;
     MapFactory.trackMarkers.forEach(function(item, index, array){
+
+      var infoContent = "<h5>"+MapFactory.trackMarkers[index].attributes.Name+"</h5>";
+      infoContent += "<span>Description will be joined from: http://www.doc.govt.nz/api/profiles/tracks</span>";
+      var infoWindow = new google.maps.InfoWindow({
+        content: infoContent
+      });
       var marker = new google.maps.Marker({
         position: MapFactory.trackMarkers[index].geometry.paths,
-        title: 'First Marker!'
+        title: MapFactory.trackMarkers[index].attributes.Name
+      });
+      marker.addListener('click', function(){
+        currentInfoWindow && currentInfoWindow.close();
+        currentInfoWindow = infoWindow;
+        infoWindow.open(map, marker);
       });
       marker.setMap(map);
     });

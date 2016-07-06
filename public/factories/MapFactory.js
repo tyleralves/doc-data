@@ -13,24 +13,41 @@ function MapFactory($http){
       .get('/trackmarkers', {params: userQuery})
       .then(function(response){
         angular.copy(response.data, MapFactory.trackMarkers);
-        MapFactory.initialize();
+        //If markers exist, remove all overlays currently on map
+        markersArray.length && MapFactory.clearOverlays();
+        MapFactory.placeMarkers();
       });
   };
 
-  //Initialize google map
-  MapFactory.initialize = function(latitude, longitude){
-    var centerLatLng = { lat: -41, lng: 173 };
+  // variable map is available to many functions in MapFactory
+  var map, markersArray = [];
+  //Initialize google map and place on view
+  MapFactory.initialize = function(latitude, longitude) {
+    var centerLatLng = {lat: -41, lng: 173};
 
-    if(!map){
-      var map = new google.maps.Map(document.getElementById('map'), {
+    if (!map) {
+      map = new google.maps.Map(document.getElementById('map'), {
         center: centerLatLng,
         zoom: 6
       });
     }
+  };
+
+  //Clear markers currently displayed on map
+  MapFactory.clearOverlays = function(){
+    markersArray.forEach(function(item, index, array){
+      item.setMap(null);
+    });
+    //Clears markersArray because the markers are no longer currently displayed
+    markersArray = [];
+  };
+
+  //Place markers returned by the arcgis query
+  MapFactory.placeMarkers = function(){
     //Place all of the trackMarkers on the map
     var currentInfoWindow;
+    //Create markers and infoWindows
     MapFactory.trackMarkers.forEach(function(item, index, array){
-
       var infoContent = "<h5>"+MapFactory.trackMarkers[index].attributes.Name+"</h5>";
       infoContent += "<span>Description will be joined from: http://www.doc.govt.nz/api/profiles/tracks</span>";
       var infoWindow = new google.maps.InfoWindow({
@@ -40,15 +57,20 @@ function MapFactory($http){
         position: MapFactory.trackMarkers[index].geometry.paths,
         title: MapFactory.trackMarkers[index].attributes.Name
       });
+      //Add click listener to place infoWindows
       marker.addListener('click', function(){
         currentInfoWindow && currentInfoWindow.close();
         currentInfoWindow = infoWindow;
         infoWindow.open(map, marker);
       });
+      //Push markers to markersArray to allow them to be cleared before the next query
+      markersArray.push(marker);
+      //Place markers on the map
       marker.setMap(map);
     });
   };
 
+  //Initialize the google map and display on the view
   google.maps.event.addDomListener(window,'load', function(){
     MapFactory.initialize();
   });

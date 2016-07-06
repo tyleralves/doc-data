@@ -6,7 +6,11 @@ function MapController(MapFactory){
   ctrl.message = 'Loading';
   ctrl.userQuery = {text: 'water'};
   ctrl.getMarkers = function(){
-    MapFactory.getMarkers(ctrl.userQuery);
+    ctrl.message = 'Loading';
+    MapFactory.getMarkers(ctrl.userQuery)
+      .then(function(){
+      ctrl.message = false;
+    });
   };
   
   

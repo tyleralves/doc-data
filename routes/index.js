@@ -74,7 +74,7 @@ router.route('/trackmarkers')
             item.geometry.paths = {latitude: item.geometry.paths[0], longitude: item.geometry.paths[1]};
           });
           //console.log(JSON.stringify(body.features));
-          
+
           res.json(body.features);
         });
       }

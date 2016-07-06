@@ -13,7 +13,7 @@ require('./models/Parks');
 //passportjs configuration
 require('./config/passport');
 
-mongoose.connect('127.0.0.1:27017/doc');
+mongoose.connect('mongodb://admin:testpass@ds015335.mlab.com:15335/heroku_7vkl36gb');
 
 
 var routes = require('./routes/index');

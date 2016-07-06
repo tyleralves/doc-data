@@ -7,7 +7,7 @@ angular
     $stateProvider
       .state('home', {
         url: '/',
-        template:'<h1>HOME</h1>'
+        template:'<map></map>'
       })
       .state('map', {
         url: '/map',
@@ -21,7 +21,7 @@ angular
         url:'/login',
         template: '<login></login>'
       });
-    //$urlRouterProvider.otherwise('/');
+    $urlRouterProvider.otherwise('/map');
   })
   .config(function(uiGmapGoogleMapApiProvider){
     uiGmapGoogleMapApiProvider.configure({

@@ -6,7 +6,6 @@
 
 
 <span style="color:red" ng-show="$ctrl.message">{{$ctrl.message}}</span>
-<span style="color:red">{{$ctrl.userQuery.text}}</span>
 <ui-gmap-google-map center='$ctrl.map.center' zoom='$ctrl.map.zoom'>
     <ui-gmap-marker ng-repeat="track in $ctrl.tracks" idKey = '$index' coords = 'track.geometry.paths'></ui-gmap-marker>
 </ui-gmap-google-map>

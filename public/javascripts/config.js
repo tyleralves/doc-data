@@ -9,6 +9,10 @@ angular
         url: '/',
         template:'<h1>HOME</h1>'
       })
+      .state('map', {
+        url: '/map',
+        template: '<map></map>'
+      })
       .state('register', {
         url: '/register',
         template: '<register></register>'
@@ -16,18 +20,13 @@ angular
       .state('login', {
         url:'/login',
         template: '<login></login>'
-      })
-      .state('productList', {
-        url:'/products',
-        template:'<products-list></products-list>'
-      })
-      .state('cart', {
-        url:'/cart',
-        template: '<cart></cart>'
-      })
-      .state('deals', {
-        url: '/deals',
-        template: '<deals></deals>'
       });
     //$urlRouterProvider.otherwise('/');
+  })
+  .config(function(uiGmapGoogleMapApiProvider){
+    uiGmapGoogleMapApiProvider.configure({
+      key: 'AIzaSyAWuwnjICGrycSCpKYz0PMoARttbpMS28M',
+      v: '3.23',
+      libraries: 'weather,geometry,visualization'
+    });
   });

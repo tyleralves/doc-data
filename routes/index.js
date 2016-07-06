@@ -1,13 +1,30 @@
 var express = require('express');
 var router = express.Router();
+var http = require('http'); //required for get requests to DOC GIS data
+var request = require('request');
 var mongoose = require('mongoose');
 var passport = require('passport');
 var expressJwt = require('express-jwt');
 var jwt = require('jsonwebtoken');
+var proj4 = require('proj4');
 var User = mongoose.model('User');
 var Park = mongoose.model('Park');
 
 var auth = expressJwt({secret: 'SECRET', userProperty: 'payload'});
+var convertCoords = function(coords){
+  var firstProjection = "+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
+  var secondProjection = 'EPSG:4326';
+  var i, length;
+  var convertedCoords = [];
+  /*for(i = 0, length = coords.length; i<length; i++){
+    console.log(proj4(firstProjection,secondProjection,coords[i]).reverse());
+    //convertedCoords.push(proj4(firstProjection,secondProjection,coords[i]).reverse());
+  }
+  return convertedCoords;*/
+  return proj4(firstProjection,secondProjection,coords).reverse();
+};
+
+//For DOC GIS api request
 
 router.post('/register', function(req,res,next){
   if(!req.body.username || !req.body.password){
@@ -39,11 +56,28 @@ router.post('/login', function(req,res,next){
   })(req, res, next);
 });
 
-router.route('/bendigo')
+router.route('/trackmarkers')
   .get(function(req, res, next){
     Park.find({Name: "Bendigo area"}, function(err, park){
-      if(err){return next(err);}
-      res.json(park);
+      if(err){
+        return next(err);
+      }else{
+        var textSearch = req.query.hasOwnProperty('text') ? req.query.text : 'Water';
+        var parksUrl = 'http://maps.doc.govt.nz/arcgis/rest/services/DTO/NamedExperiences/MapServer/0/query?where=&text=' + textSearch + '&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=OBJECTID%2CName%2CWeb_URL%2CCategory%2CShape%2CShape.STLength%28%29%2CGUID&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=json';
+
+        request({
+          url: parksUrl,
+          json: true
+        }, function(error, response, body) {
+          body.features.forEach(function(item, index, array){
+            item.geometry.paths = convertCoords(item.geometry.paths[0][0]);
+            item.geometry.paths = {latitude: item.geometry.paths[0], longitude: item.geometry.paths[1]};
+          });
+          //console.log(JSON.stringify(body.features));
+          
+          res.json(body.features);
+        });
+      }
     });
   })
   .post(function(req, res, next){

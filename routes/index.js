@@ -71,7 +71,7 @@ router.route('/trackmarkers')
         }, function(error, response, body) {
           body.features.forEach(function(item, index, array){
             item.geometry.paths = convertCoords(item.geometry.paths[0][0]);
-            item.geometry.paths = {latitude: item.geometry.paths[0], longitude: item.geometry.paths[1]};
+            item.geometry.paths = {lat: item.geometry.paths[0], lng: item.geometry.paths[1]};
           });
           //console.log(JSON.stringify(body.features));
 

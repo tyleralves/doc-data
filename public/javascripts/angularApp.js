@@ -4,8 +4,7 @@
 angular
   .module('app', [
     'ui.router',
-    'ui.bootstrap',
-    'uiGmapgoogle-maps'
+    'ui.bootstrap'
   ])
   //range filter used in ProductWide and ProductSquare components for quantity selects
   .filter('range', function(){

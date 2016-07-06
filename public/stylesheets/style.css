@@ -1,4 +1,6 @@
-.angular-google-map-container { height: 700px; }
+#map {
+  height: 90vh;
+}
 
 .view-container {
   margin-top: 10px;

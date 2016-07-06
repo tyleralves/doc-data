@@ -22,11 +22,4 @@ angular
         template: '<login></login>'
       });
     $urlRouterProvider.otherwise('/map');
-  })
-  .config(function(uiGmapGoogleMapApiProvider){
-    uiGmapGoogleMapApiProvider.configure({
-      key: 'AIzaSyAWuwnjICGrycSCpKYz0PMoARttbpMS28M',
-      v: '3.23',
-      libraries: 'weather,geometry,visualization'
-    });
   });

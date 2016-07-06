@@ -14,6 +14,7 @@ function MapController(MapFactory){
     .then(function(){
       ctrl.message = false;
     });
+  MapFactory.initialize();
   
 }
 

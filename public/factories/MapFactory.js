@@ -70,11 +70,6 @@ function MapFactory($http){
     });
   };
 
-  //Initialize the google map and display on the view
-  google.maps.event.addDomListener(window,'load', function(){
-    MapFactory.initialize();
-  });
-
   return MapFactory;
 }
 

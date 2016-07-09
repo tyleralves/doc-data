@@ -5,3 +5,4 @@
 /mongo-doc/
 /.idea/
 /ext_data/
+.env

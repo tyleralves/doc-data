@@ -1,4 +1,5 @@
 var express = require('express');
+var dotenv = require('dotenv').config();
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
@@ -7,13 +8,12 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var passport = require('passport');
 
-
 require('./models/Users');
 require('./models/Parks');
 //passportjs configuration
 require('./config/passport');
 
-mongoose.connect('mongodb://admin:testpass@ds015335.mlab.com:15335/heroku_7vkl36gb');
+mongoose.connect("mongodb://"+ process.env.MONGOLAB_USERNAME +":"+process.env.MONGOLAB_PASSWORD+"@ds015335.mlab.com:15335/heroku_7vkl36gb");
 
 
 var routes = require('./routes/index');

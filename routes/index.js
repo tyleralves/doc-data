@@ -15,6 +15,8 @@ var Park = mongoose.model('Park');
 //Static track details stored in json file on server
 var trackDetail = require('../public/indexedTracks.json');
 var auth = expressJwt({secret: 'SECRET', userProperty: 'payload'});
+
+//Converts coordinates from nz projection to google maps projection
 var convertCoords = function(coords){
   var firstProjection = "+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
   var secondProjection = 'EPSG:4326';
@@ -27,8 +29,6 @@ var convertCoords = function(coords){
   return convertedCoords;*/
   return proj4(firstProjection,secondProjection,coords).reverse();
 };
-
-//For DOC GIS api request
 
 router.post('/register', function(req,res,next){
   if(!req.body.username || !req.body.password){
@@ -60,41 +60,7 @@ router.post('/login', function(req,res,next){
   })(req, res, next);
 });
 
-/*Used to download json from doc api
 
-router.get('/trackdetails', function(req, res, next){
-  var detailPromise = q.Promise(
-    function(resolve,reject){
-      request({
-        url: 'http://www.doc.govt.nz/api/profiles/tracks',
-        json: true,
-        method: 'GET'
-      }, function(error, response, body){
-        fs.writeFile('tracks.json', JSON.stringify(body), function(err){
-         console.log(err);
-         });
-        resolve(body);
-      });
-    }
-  );
-});
-*/
-
-/*Used to index tracks.json (indexedTracks.json)
-var trackDetail = require('../public/tracks.json');
-router.get('/trackindexer', function(req, res, next){
-  var indexObj = {};
-  trackDetail.forEach(function(item, index, array){
-    var itemId = "http://www.doc.govt.nz/link/"+item.Id.toUpperCase()+".aspx";
-    indexObj[itemId]=index;
-  });
-  trackDetail.unshift(indexObj);
-  fs.writeFile('indexedTracks.json', JSON.stringify(trackDetail), function(err){
-    console.log(err);
-    res.json({done: 'DONE'});
-  });
-});
-*/
 
 router.route('/trackmarkers')
   .get(function(req, res, next){
@@ -132,16 +98,9 @@ router.route('/trackmarkers')
           });*/
       }
     });
-  })
-  .post(function(req, res, next){
-    var product = new Product(req.body);
-
-    product.save(function(err, product){
-      if(err) {return next(err);}
-      res.json(product);
-    });
   });
 
+/*Example routes for possible future modification and use
 router.get('/cart', auth, function(req, res, next){
   User.findOne({username: req.payload.username}, function(err, user){
     user.populate('cart.product', function(err, user){
@@ -161,7 +120,7 @@ router.post('/cartRemoveProduct', auth, function(req, res, next) {
       }
     }
   }
-  
+
   User.findOne({username: req.payload.username}, function (err, user) {
     var removeIndex = findCartIndex(user);
     Product.update({_id: req.body.product._id}, {$inc: {quantity: user.cart[removeIndex].quantity}},
@@ -176,7 +135,7 @@ router.post('/cartRemoveProduct', auth, function(req, res, next) {
     
   });
 });
-  
+
 router.post('/cartAddProduct', auth, function(req, res, next){
   var newCartItem = {
     product: req.body._id,
@@ -230,5 +189,5 @@ router.post('/cartModifyQuantity', auth, function(req, res, next){
     });
   });
 });
-
+*/
 module.exports = router;

@@ -81,7 +81,6 @@ function MapFactory($http){
       //Place markers on the map
       marker.setMap(map);
     });
-    console.log(nonmatch);
   };
 
   return MapFactory;

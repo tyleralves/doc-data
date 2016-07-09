@@ -66,7 +66,6 @@ router.route('/trackmarkers')
   .get(function(req, res, next){
     Park.find({Name: "Bendigo area"}, function(err, park){
       if(err){
-        console.log(err);
         return next(err);
       }else{
         var textSearch = (req.query.hasOwnProperty('text')&&req.query.text.length>0) ? req.query.text : 'Water';
@@ -83,7 +82,6 @@ router.route('/trackmarkers')
                 item.geometry.paths = convertCoords(item.geometry.paths[0][0]);
                 item.geometry.paths = {lat: item.geometry.paths[0], lng: item.geometry.paths[1]};
                 locationDetailIndex = trackDetail[0][item.attributes.Web_URL]+1;
-                console.log(locationDetailIndex);
                 item.attributes.details = trackDetail[locationDetailIndex];
               });
               res.json(body.features);

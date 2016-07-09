@@ -37,7 +37,6 @@ function UserFactory($http, $window){
     return $http
       .post('/register', user)
       .then(function(response){
-        console.log(response.data.token);
         UserFactory.saveToken(response.data.token);
         return response;
       }, function(error){

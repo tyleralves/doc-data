@@ -8,10 +8,10 @@ function MapFactory($http){
   MapFactory.trackMarkers = [];
 
   MapFactory.getMarkers = function(userQuery){
-    console.log(userQuery);
     return $http
       .get('/trackmarkers', {params: userQuery})
       .then(function(response){
+        //Copy arcgis api response to MapFactory
         angular.copy(response.data, MapFactory.trackMarkers);
         //If markers exist, remove all overlays currently on map
         markersArray.length && MapFactory.clearOverlays();
@@ -45,11 +45,24 @@ function MapFactory($http){
   //Place markers returned by the arcgis query
   MapFactory.placeMarkers = function(){
     //Place all of the trackMarkers on the map
-    var currentInfoWindow;
+    var currentInfoWindow, introduction,image, nonmatch =0;
     //Create markers and infoWindows
     MapFactory.trackMarkers.forEach(function(item, index, array){
+      if(MapFactory.trackMarkers[index].attributes.hasOwnProperty('details')){
+        introduction = MapFactory.trackMarkers[index].attributes.details.Introduction;
+        image = "http://www.doc.govt.nz/"+MapFactory.trackMarkers[index].attributes.details.IntroductionThumbnail;
+        staticLink = MapFactory.trackMarkers[index].attributes.details.StaticLink;
+      }else{
+        nonmatch++;
+      }
       var infoContent = "<h5>"+MapFactory.trackMarkers[index].attributes.Name+"</h5>";
-      infoContent += "<span>Description will be joined from: http://www.doc.govt.nz/api/profiles/tracks</span>";
+      infoContent += "<div style='display:flex'>";
+      infoContent += "<div style='margin-right: 10px'>"
+        + "<div>" + introduction + "</div>"
+        + "<a href='" + staticLink + "'>See DOC page.</a>"
+        + "</div>";
+      infoContent += "<img style='float: right' src='"+image+"'/>";
+      infoContent += "</div>";
       var infoWindow = new google.maps.InfoWindow({
         content: infoContent
       });
@@ -68,6 +81,7 @@ function MapFactory($http){
       //Place markers on the map
       marker.setMap(map);
     });
+    console.log(nonmatch);
   };
 
   return MapFactory;

@@ -1,5 +1,4 @@
-The doc-data project queries DOC's arcgis 'NamedExperiences' api, joins the results with DOC's website data (description, thumbnail,
-etc) and displays the results on a google map.
+The doc-data project queries DOC's arcgis 'NamedExperiences' api, joins the results with DOC's website data (description, thumbnail, etc) and displays the results on a google map.
 
 See current features below, and future plans within the todos below.
 

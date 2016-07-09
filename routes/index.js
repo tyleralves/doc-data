@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var http = require('http'); //required for get requests to DOC GIS data
 var request = require('request');
+var q = require('q');
+var fs = require('fs');
 var mongoose = require('mongoose');
 var passport = require('passport');
 var expressJwt = require('express-jwt');
@@ -10,6 +12,8 @@ var proj4 = require('proj4');
 var User = mongoose.model('User');
 var Park = mongoose.model('Park');
 
+//Static track details stored in json file on server
+var trackDetail = require('../public/indexedTracks.json');
 var auth = expressJwt({secret: 'SECRET', userProperty: 'payload'});
 var convertCoords = function(coords){
   var firstProjection = "+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
@@ -56,27 +60,76 @@ router.post('/login', function(req,res,next){
   })(req, res, next);
 });
 
+/*Used to download json from doc api
+
+router.get('/trackdetails', function(req, res, next){
+  var detailPromise = q.Promise(
+    function(resolve,reject){
+      request({
+        url: 'http://www.doc.govt.nz/api/profiles/tracks',
+        json: true,
+        method: 'GET'
+      }, function(error, response, body){
+        fs.writeFile('tracks.json', JSON.stringify(body), function(err){
+         console.log(err);
+         });
+        resolve(body);
+      });
+    }
+  );
+});
+*/
+
+/*Used to index tracks.json (indexedTracks.json)
+var trackDetail = require('../public/tracks.json');
+router.get('/trackindexer', function(req, res, next){
+  var indexObj = {};
+  trackDetail.forEach(function(item, index, array){
+    var itemId = "http://www.doc.govt.nz/link/"+item.Id.toUpperCase()+".aspx";
+    indexObj[itemId]=index;
+  });
+  trackDetail.unshift(indexObj);
+  fs.writeFile('indexedTracks.json', JSON.stringify(trackDetail), function(err){
+    console.log(err);
+    res.json({done: 'DONE'});
+  });
+});
+*/
+
 router.route('/trackmarkers')
   .get(function(req, res, next){
     Park.find({Name: "Bendigo area"}, function(err, park){
       if(err){
+        console.log(err);
         return next(err);
       }else{
-        var textSearch = req.query.hasOwnProperty('text') ? req.query.text : 'Water';
+        var textSearch = (req.query.hasOwnProperty('text')&&req.query.text.length>0) ? req.query.text : 'Water';
         var parksUrl = 'http://maps.doc.govt.nz/arcgis/rest/services/DTO/NamedExperiences/MapServer/0/query?where=&text=' + textSearch + '&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=OBJECTID%2CName%2CWeb_URL%2CCategory%2CShape%2CShape.STLength%28%29%2CGUID&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=json';
-
-        request({
-          url: parksUrl,
-          json: true
-        }, function(error, response, body) {
-          body.features.forEach(function(item, index, array){
-            item.geometry.paths = convertCoords(item.geometry.paths[0][0]);
-            item.geometry.paths = {lat: item.geometry.paths[0], lng: item.geometry.paths[1]};
-          });
-          //console.log(JSON.stringify(body.features));
-
-          res.json(body.features);
-        });
+        
+        
+            request({
+              url: parksUrl,
+              json: true,
+              method: 'GET'
+            }, function(error, response, body) {
+              var locationDetailIndex;
+              body.features.forEach(function(item, index, array){
+                item.geometry.paths = convertCoords(item.geometry.paths[0][0]);
+                item.geometry.paths = {lat: item.geometry.paths[0], lng: item.geometry.paths[1]};
+                locationDetailIndex = trackDetail[0][item.attributes.Web_URL]+1;
+                console.log(locationDetailIndex);
+                item.attributes.details = trackDetail[locationDetailIndex];
+              });
+              res.json(body.features);
+              //resolve(body.features);
+            });
+     
+        
+        /*locationPromise
+          .then(function(data){
+            console.log(data[0]);
+            res.json(data);
+          });*/
       }
     });
   })

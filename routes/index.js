@@ -60,8 +60,6 @@ router.post('/login', function(req,res,next){
   })(req, res, next);
 });
 
-
-
 router.route('/trackmarkers')
   .get(function(req, res, next){
     Park.find({Name: "Bendigo area"}, function(err, park){

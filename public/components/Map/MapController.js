@@ -4,7 +4,7 @@
 function MapController(MapFactory){
   var ctrl = this;
   ctrl.message = 'Loading';
-  ctrl.userQuery = {text: 'water'};
+  ctrl.userQuery = {text: 'a'};
   ctrl.getMarkers = function(){
     ctrl.message = 'Loading';
     MapFactory.getMarkers(ctrl.userQuery)
@@ -13,11 +13,12 @@ function MapController(MapFactory){
     });
   };
   
-  
+  /*
   MapFactory.getMarkers(ctrl.userQuery)
     .then(function(){
       ctrl.message = false;
     });
+    */
   MapFactory.initialize();
   
 }

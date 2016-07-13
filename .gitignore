@@ -6,3 +6,4 @@
 /.idea/
 /ext_data/
 .env
+/public/javascripts/libs/ogr2ogr/

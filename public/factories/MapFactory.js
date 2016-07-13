@@ -6,6 +6,7 @@ function MapFactory($http){
 
   //Getting markers from arcgis api
   MapFactory.trackMarkers = [];
+  MapFactory.trackGeoJson = [];
 
   MapFactory.getMarkers = function(userQuery){
     return $http
@@ -19,8 +20,53 @@ function MapFactory($http){
       });
   };
 
+  var infoWindow = null;
+  function addInfoWindow(target, infoContent){
+    if(infoWindow){
+      infoWindow.close();
+    }
+    infoWindow = new google.maps.InfoWindow({
+      content: infoContent || 'No description'
+    });
+    infoWindow.setPosition(target.latLng);
+    infoWindow.open(map);
+  }
+
+  MapFactory.getNamedExperiences = function(){
+    map.data.loadGeoJson('./data/DOC_NamedExperiences_GeoJson.json');
+
+    map.data.addListener('mouseover', function(target){
+      var infoContent = target.feature.getProperty('Name');
+      addInfoWindow(target, infoContent);
+    });
+
+    map.data.setStyle({
+      strokeColor: 'red',
+      strokeWeight: 2
+    });
+  };
+
+  MapFactory.getTrackSegments = function(){
+
+    map.data.loadGeoJson('./data/DOC_Tracks_1_GeoJson.json');
+    map.data.loadGeoJson('./data/DOC_Tracks_2_GeoJson.json');
+    map.data.loadGeoJson('./data/DOC_Tracks_3_GeoJson.json');
+    map.data.loadGeoJson('./data/DOC_Tracks_4_GeoJson.json');
+    map.data.loadGeoJson('./data/DOC_Tracks_5_GeoJson.json');
+
+    map.data.addListener('mouseover', function(target){
+      var infoContent = target.feature.getProperty('DESCRIPTION');
+      addInfoWindow(target, infoContent)
+    });
+
+    map.data.setStyle({
+      strokeColor: 'green',
+      strokeWeight: 1
+    });
+  };
+
   // variable map is available to many functions in MapFactory
-  var map, markersArray = [];
+  var map, markersArray = [], tracksArray = [];
   //Initialize google map and place on view
   MapFactory.initialize = function(latitude, longitude) {
     var centerLatLng = {lat: -41, lng: 173};
@@ -30,6 +76,10 @@ function MapFactory($http){
         center: centerLatLng,
         zoom: 6
       });
+
+      //MapFactory.getNamedExperiences();
+      MapFactory.getTrackSegments();
+     
     }
   };
 
